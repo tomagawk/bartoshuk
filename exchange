@@ -1,0 +1,21 @@
+file="usd.buy"
+
+buy=$(cat curr.json | jg.[0].buy)
+
+buy=${buy:1:-1} 
+buy=$(echo "scale=0; ($buy * 100) / 1" | bc)
+
+[ -s $file ] && prev=$(cat $file) || prev=0
+
+let "d = buy - prev"
+
+if [$buy -ne $prev ]
+then
+uah=$(echo "scale=2; $buy / 100" | bc)
+duah=$(echo "scale=2; $d / 100" | bc)
+
+echo "$uah ($duah)"
+prev=$buy
+fi
+
+echo $prev > $file
