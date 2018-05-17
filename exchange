@@ -1,21 +1,18 @@
 file="usd.buy"
 
-buy=$(cat curr.json | jg.[0].buy)
+curl -o usd.json 'https://api.privatbank.ua/p24api/pubinfo?exchange&json&coursid=11'
 
-buy=${buy:1:-1} 
-buy=$(echo "scale=0; ($buy * 100) / 1" | bc)
+new=$(< usd.json jq .[0].buy)
 
-[ -s $file ] && prev=$(cat $file) || prev=0
+[ -s $file ] && old=$(cat $file) || old=0
 
-let "d = buy - prev"
-
-if [$buy -ne $prev ]
+if [ $new != $old ]
 then
-uah=$(echo "scale=2; $buy / 100" | bc)
-duah=$(echo "scale=2; $d / 100" | bc)
+echo $new
 
-echo "$uah ($duah)"
-prev=$buy
+/root/kursova/telegram "KURS: $new"
+
+old=$new
 fi
 
-echo $prev > $file
+echo $old > $file
